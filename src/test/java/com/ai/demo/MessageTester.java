@@ -155,6 +155,7 @@ public class MessageTester {
     }
 
 /** ------------------------SystemMessage ----------------***/
+
     /**
      * 测试System Message，引导模型的行为。你可以使用系统消息来设置语气、定义模型的角色并建立响应指南。
      *
@@ -169,6 +170,7 @@ public class MessageTester {
                 你是一位资深的 Java 开发者，擅长 Web 框架。
                 始终提供代码示例并解释你的推理。
                 在解释中要简洁但透彻。
+                请以HTML格式输出
                 """);
         //创建UserMessage
         UserMessage userMessage = new UserMessage("如何创建REST API?");

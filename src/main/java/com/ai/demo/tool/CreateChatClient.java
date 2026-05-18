@@ -45,7 +45,7 @@ public final class CreateChatClient {
      */
     public static ChatModel createDashScopeChatModel() {
         String apiKey = System.getenv("AI_DASHSCOPE_API_KEY");
-// 创建模型实例
+        // 创建模型实例
         DashScopeApi dashScopeApi = DashScopeApi.builder()
                 .apiKey(apiKey)
                 .build();

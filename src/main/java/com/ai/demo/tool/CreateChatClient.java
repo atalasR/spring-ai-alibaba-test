@@ -61,7 +61,7 @@ public final class CreateChatClient {
      *
      * @return
      */
-    public static ChatModel createDashScopeChatModelOfQWEN3Dot5plus() {
+    public static ChatModel createDashScopeChatModelOfQWEN3Dot6plus() {
         String apiKey = System.getenv("AI_DASHSCOPE_API_KEY");
 // 创建模型实例
         DashScopeApi dashScopeApi = DashScopeApi.builder()
@@ -70,7 +70,7 @@ public final class CreateChatClient {
         ChatModel chatModel = DashScopeChatModel.builder()
                 .dashScopeApi(dashScopeApi)
                 .defaultOptions(DashScopeChatOptions.builder()
-                        .model("qwen3.5-plus")
+                        .model("qwen3.6-plus")
                         .multiModel(true)
                         .build())
                 .build();

@@ -1,20 +1,96 @@
 package com.ai.demo;
 
+import com.ai.demo.agent.DynamicPromptInterceptor;
+import com.ai.demo.agent.SearchTool;
+import com.ai.demo.agent.SearchToolInput;
+import com.ai.demo.agent.ToolErrorInterceptor;
+import com.ai.demo.tool.CreateChatClient;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
 import com.alibaba.cloud.ai.graph.exception.GraphRunnerException;
 import org.junit.Test;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
 
 public class AgentsTester {
 
+    /** ------------------------agent的核心组件Tools和Interceptor----------------***/
+
+    /**
+     * 模型拦截器
+     */
+    @Test
+    public void test5() throws GraphRunnerException {
+        ChatModel chatModel = CreateChatClient.createDashScopeChatModel();
+        ReactAgent agent = ReactAgent.builder()
+                .name("model_interceptor_agent")
+                .model(chatModel)
+                .interceptors(new DynamicPromptInterceptor())
+                .build();
+        //通过runnableConfig指定配置信息
+        RunnableConfig runnableConfig = RunnableConfig.builder()
+                .addMetadata("user_role", "beginner")
+                .build();
+        AssistantMessage assistantMessage = agent.call("介绍一下Spring boot的自动注入原理。", runnableConfig);
+        System.out.println(assistantMessage.getText());
+    }
 
 
+    /**
+     * 工具拦截器示例
+     */
+    @Test
+    public void test4() throws GraphRunnerException {
+        //创建tool 类
+        ToolCallback searchTool = FunctionToolCallback.builder("search",
+                        new SearchTool())
+                .description("通过给定的参数查询线上新闻并返回结果") //定义工具描述，提供给模型的使用指南
+                .inputType(SearchToolInput.class)
+                .build();
+
+        ChatModel chatModel = CreateChatClient.createDashScopeChatModel();
+//        //创建Agent
+        ReactAgent searchAgent = ReactAgent.builder()
+                .model(chatModel) //设置model
+                .name("search_agent") //设置agent的名称
+                .tools(searchTool)
+                .interceptors(new ToolErrorInterceptor())
+                .systemPrompt("调用工具输出什么，模型就输出什么，不能进行修改、添加、删除。")
+                .build();
+        AssistantMessage assistantMessage = searchAgent.call("请搜索昨天发生了哪些新文？");
+        System.out.println("结果是：" + assistantMessage.getText());
+    }
 
 
+    /**
+     * 工具调用示例
+     */
+    @Test
+    public void test3() throws GraphRunnerException {
+        //创建tool 类
+        ToolCallback searchTool = FunctionToolCallback.builder("search",
+                        new SearchTool())
+                .description("通过给定的参数查询线上新闻并返回结果") //定义工具描述，提供给模型的使用指南
+                .inputType(SearchToolInput.class)
+                .build();
 
+        ChatModel chatModel = CreateChatClient.createDashScopeChatModel();
+//        //创建Agent
+        ReactAgent searchAgent = ReactAgent.builder()
+                .model(chatModel) //设置model
+                .name("search_agent") //设置agent的名称
+                .tools(searchTool)
+                .build();
+        AssistantMessage assistantMessage = searchAgent.call("请搜索今天发生了哪些新闻？");
+        System.out.println("结果是：" + assistantMessage.getText());
+    }
+
+    /** ------------------------agent的核心组件模型----------------***/
     /**
      * 高级模型配置
      */
